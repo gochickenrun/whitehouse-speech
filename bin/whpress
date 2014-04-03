@@ -7,4 +7,55 @@ rescue LoadError
   require 'whitehouse_speech'
 end
 
+require 'optparse'
+require 'ostruct'
 
+require 'find'
+
+
+class PressOptParse
+
+  def self.parse(args)
+    options = OpenStruct.new
+    options.verbse = false
+
+    opt_parser = OptionParser.new do |opts|
+      opts.on('-v', 'Run verbosely') do |v|
+        options.verbose = v
+      end
+
+      opts.on_tail('-h', '--help', 'Show this message') do
+        puts opts
+        exit
+      end
+
+      opts.on_tail('--version', 'Show version') do
+        puts "White House Press Speech Transformer -- #{$0} #{WhitehouseSpeech::VERSION}"
+        exit
+      end
+    end
+
+    opt_parser.parse! args
+    options
+  end # parse()
+
+end # class PressOptParse
+
+
+options = PressOptParse.parse(ARGV)
+
+
+Find.find(*ARGV) do |path|
+  if FileTest.directory? path
+    puts "Searching #{path}" if options.verbose
+    # if File.basename(path)[0] == ?.
+    #   Find.prune
+    # else
+    #   next
+    # end
+  else
+    puts "Extracting #{path}" if options.verbose
+    speech = WhitehouseSpeech::Extractor.new path
+    puts "  #{speech.headlines.join ' / '}"
+  end
+end
