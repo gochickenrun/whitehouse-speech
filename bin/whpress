@@ -46,14 +46,7 @@ options = PressOptParse.parse(ARGV)
 
 
 Find.find(*ARGV) do |path|
-  if FileTest.directory? path
-    puts "Searching #{path}" if options.verbose
-    # if File.basename(path)[0] == ?.
-    #   Find.prune
-    # else
-    #   next
-    # end
-  else
+  unless FileTest.directory? path
     puts "Extracting #{path}" if options.verbose
     speech = WhitehouseSpeech::Extractor.new path
     puts "  #{speech.headlines.join ' / '}"
