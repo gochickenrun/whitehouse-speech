@@ -11,7 +11,7 @@ require 'optparse'
 require 'ostruct'
 
 require 'find'
-
+require 'builder'
 
 class PressOptParse
 
@@ -47,7 +47,7 @@ options = PressOptParse.parse(ARGV)
 def speeches(filenames_directories, options)
   Enumerator.new do |enum|
     Find.find(*filenames_directories) do |path|
-      unless FileTest.directory? path
+      if FileTest.file? path
         puts "Extracting #{path}" if options.verbose
         enum.yield WhitehouseSpeech::Extractor.new path
       end
@@ -56,5 +56,25 @@ def speeches(filenames_directories, options)
 end
 
 speeches(ARGV, options).each do |speech|
-  puts "  #{speech.headlines.join ' / '}"
+  output_directory = 'output'
+  unless Dir.exist? output_directory
+    Dir.mkdir output_directory
+  end
+
+  output_file =
+    File.new(File.join(output_directory,
+                       "#{File.basename(speech.filename)}.xml"),
+             'w')
+
+  builder = Builder::XmlMarkup.new(:target => output_file,
+                                   :indent => 2)
+  builder.whpress do |b|
+    b.title            speech.headlines.join ' '
+    b.date             speech.date
+    b.time             speech.time
+    b.location         speech.location
+    b.metaInformation  speech.meta_information
+    b.text             speech.text.join "\n"
+      # b.speaker
+  end
 end

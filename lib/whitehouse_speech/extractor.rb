@@ -10,18 +10,20 @@ module WhitehouseSpeech
   
   class Extractor
     attr_accessor :content
+    attr_reader :filename
     
     def initialize(url_or_filename)
       speech_page = Nokogiri::HTML(open url_or_filename)
+      @filename = url_or_filename
       @content = speech_page.css '#content'  # Seems to be in a div with the id=content
     end
 
     def meta_information
-      @content.css('.information').text
+      @content.css('.information').text.lstrip.rstrip
     end
 
     def date
-      @content.css('.information .date').text
+      @content.css('.information .date').text.lstrip.rstrip
     end
     
     def headlines
