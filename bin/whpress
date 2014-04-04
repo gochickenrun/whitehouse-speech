@@ -44,11 +44,17 @@ end # class PressOptParse
 
 options = PressOptParse.parse(ARGV)
 
-
-Find.find(*ARGV) do |path|
-  unless FileTest.directory? path
-    puts "Extracting #{path}" if options.verbose
-    speech = WhitehouseSpeech::Extractor.new path
-    puts "  #{speech.headlines.join ' / '}"
+def speeches(filenames_directories, options)
+  Enumerator.new do |enum|
+    Find.find(*filenames_directories) do |path|
+      unless FileTest.directory? path
+        puts "Extracting #{path}" if options.verbose
+        enum.yield WhitehouseSpeech::Extractor.new path
+      end
+    end
   end
+end
+
+speeches(ARGV, options).each do |speech|
+  puts "  #{speech.headlines.join ' / '}"
 end
