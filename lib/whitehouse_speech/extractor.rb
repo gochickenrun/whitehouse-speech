@@ -23,7 +23,17 @@ module WhitehouseSpeech
     end
 
     def date
-      @content.css('.information .date').text.lstrip.rstrip
+      unless @date
+        date_string = @content.css('.information .date')
+          .text.lstrip.rstrip
+        begin
+          @date = Date.parse date_string
+        rescue ArgumentError
+          throw "Invalid date for #{@filename}"
+        end
+      end
+      
+      @date
     end
     
     def headlines
@@ -35,6 +45,7 @@ module WhitehouseSpeech
     end
 
     def time
+      # TODO: do validation on the time to see if this worked at all.
       @content.css('p.rtecenter + p').text
     end
 

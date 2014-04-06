@@ -47,7 +47,7 @@ options = PressOptParse.parse(ARGV)
 def speeches(filenames_directories, options)
   Enumerator.new do |enum|
     Find.find(*filenames_directories) do |path|
-      if FileTest.file? path
+      if FileTest.file? path and File.basename(path)[0] != '.'
         puts "Extracting #{path}" if options.verbose
         enum.yield WhitehouseSpeech::Extractor.new path
       end
