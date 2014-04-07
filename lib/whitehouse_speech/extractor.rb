@@ -7,15 +7,22 @@ require 'nokogiri'
 
 
 module WhitehouseSpeech
-  
+
   class Extractor
     attr_accessor :content
     attr_reader :filename
-    
+    attr_reader :start_time
+    attr_reader :end_time
+    attr_reader :text
+
     def initialize(url_or_filename)
       speech_page = Nokogiri::HTML(open url_or_filename)
       @filename = url_or_filename
       @content = speech_page.css '#content'  # Seems to be in a div with the id=content
+      @date = nil
+      @text = ""
+
+      _parse_speech_text(@content.children)
     end
 
     def meta_information
@@ -32,10 +39,10 @@ module WhitehouseSpeech
           throw "Invalid date for #{@filename}"
         end
       end
-      
+
       @date
     end
-    
+
     def headlines
       [@content.css('h1').text, @content.css('h3').text]
     end
@@ -44,40 +51,35 @@ module WhitehouseSpeech
       @content.css('p.rtecenter').text
     end
 
-    def time
-      # TODO: do validation on the time to see if this worked at all.
-      @content.css('p.rtecenter + p').text
-    end
 
-    def text
-      possible_paragraphs = @content.css('p')
-      #found_location = false
-      found_start_time = false
-      body_text = []
-
-      possible_paragraphs.each do |para|
-        # Search for the start time to indicate when the actual text
-        # begins.
-        if not found_start_time
-          begin
-            @time = DateTime.parse(para.text)
-            found_start_time = true
-          rescue ArgumentError
-            next
-          end
-        else
-          body_text.push para.text
-        end
+    def _parse_speech_text(contents)
+      location_index = contents.find_index do |node|
+        node.attribute('class') &&
+          node.attribute('class').value == 'rtecenter'
       end
 
-      body_text
-    end
-    
+      texts = contents[location_index+1..contents.length].map do |node|
+        node.text.lstrip
+      end
+      texts = texts.join ''
+
+      texts.each_line do |line|
+        if not self.start_time
+          begin
+            starting_time = DateTime.parse line
+            @start_time = DateTime.new(date.year,
+                                       date.month, date.day,
+                                       starting_time.hour,
+                                       starting_time.minute, 0,
+                                       starting_time.offset)
+          rescue ArgumentError
+          end
+        else
+          self.text << line
+        end
+      end
+    end # _parse_speech_text
+
   end # class Extractor
-  
+
 end # module WhitehouseSpeech
-
-
-if __FILE__ == $0
-  speech = WhitehouseSpeech.new 'remarks-president-preparing-college'
-end
