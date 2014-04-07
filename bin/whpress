@@ -71,10 +71,10 @@ speeches(ARGV, options).each do |speech|
   builder.whpress do |b|
     b.title            speech.headlines.join ' '
     b.date             speech.date
-    b.time             speech.time
+    b.start_time       speech.start_time
     b.location         speech.location
     b.metaInformation  speech.meta_information
-    b.text             speech.text.join "\n"
+    b.text             speech.text
       # b.speaker
   end
 end

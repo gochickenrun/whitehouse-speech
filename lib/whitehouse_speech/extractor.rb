@@ -26,13 +26,13 @@ module WhitehouseSpeech
     end
 
     def meta_information
-      @content.css('.information').text.lstrip.rstrip
+      @content.css('.information').text.strip
     end
 
     def date
       unless @date
         date_string = @content.css('.information .date')
-          .text.lstrip.rstrip
+          .text.strip
         begin
           @date = Date.parse date_string
         rescue ArgumentError
@@ -55,18 +55,18 @@ module WhitehouseSpeech
     def _parse_speech_text(contents)
       location_index = contents.find_index do |node|
         node.attribute('class') &&
-          node.attribute('class').value == 'rtecenter'
+          node.attribute('class').value =~ /rtecenter/
       end
 
       texts = contents[location_index+1..contents.length].map do |node|
-        node.text.lstrip
+        node.text.strip
       end
-      texts = texts.join ''
+      texts = texts.join "\n"
 
       texts.each_line do |line|
-        if not self.start_time
+        if not @start_time
           begin
-            starting_time = DateTime.parse line
+            starting_time = DateTime.parse line.strip
             @start_time = DateTime.new(date.year,
                                        date.month, date.day,
                                        starting_time.hour,
