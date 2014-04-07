@@ -21,7 +21,7 @@ def basic_tests(fixture_name, **results)
     end
 
     it "returns the headlines" do
-      speech.headlines[0].must_equal "Remarks by the First Lady at Chinese Immersion School Visit"
+      speech.headlines[0].must_match results[:headline]
       speech.headlines[1].must_be_empty
     end
 

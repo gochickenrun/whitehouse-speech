@@ -22,7 +22,7 @@ module WhitehouseSpeech
       @date = nil
       @text = ""
 
-      _parse_speech_text(@content.children)
+      _parse_speech_text(@content.css('p'))
     end
 
     def meta_information
@@ -48,7 +48,8 @@ module WhitehouseSpeech
     end
 
     def location
-      @content.css('p.rtecenter').text
+      location_tag = @content.css('p.rtecenter')
+      location_tag.text if location_tag
     end
 
 
@@ -57,6 +58,7 @@ module WhitehouseSpeech
         node.attribute('class') &&
           node.attribute('class').value =~ /rtecenter/
       end
+      location_index = 0 unless location_index
 
       texts = contents[location_index+1..contents.length].map do |node|
         node.text.strip
