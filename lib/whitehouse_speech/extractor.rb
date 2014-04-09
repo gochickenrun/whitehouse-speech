@@ -75,6 +75,21 @@ module WhitehouseSpeech
       texts = texts.join "\n"
 
       texts.each_line do |line|
+        if not @office_of
+          someones_office = /Office of the (.*)/.match(line)
+          @office_of = someones_office[1] if someones_office
+        end
+
+        if not @date
+          # Let's try to find the date since it's likely to be
+          # un-marked.
+          puts "#{@filename}: No date." if @options[:verbose]
+          begin
+            _parse_date_string(line)
+          rescue StandardError
+          end
+        end
+
         if not @start_time
           begin
             starting_time = DateTime.parse line.strip

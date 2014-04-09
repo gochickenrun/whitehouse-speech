@@ -27,3 +27,12 @@ basic_tests('2014_women_soul',
                          /the one and only Miss Patti LaBelle/
                         ])
 
+basic_tests('2012_no_date_marker',
+            date: '10-26-2012',
+            location: '',
+            start_time: "11:24 AM -0800",
+            headline: /Campaign Event/,
+            text_lines: [/talk about the future and whether/,
+                         /If you detect any passion in my voice/
+                        ])
+
