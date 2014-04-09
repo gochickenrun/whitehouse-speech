@@ -1,0 +1,34 @@
+{
+  structureName:"document",
+  xpaths:["whpress"],
+  titleXpaths:["./title/text()"],
+  units:[
+    {
+      belongsTo: "document",
+      structureName: "sentence",
+      xpaths: ['./text/text()']
+    }
+  ],
+  metadata: [
+    {
+      belongsTo:"document",
+      propertyName:"Title",
+      xpaths:["./title/text()"],
+      valueIsDisplayed:true,
+      nameIsDisplayed:true,
+      type:"string",
+      displayName:"Title",
+      isCategory:true,
+    },
+    {
+      belongsTo:"document",
+      propertyName:"Date",
+      xpaths:["./date/text()"],
+      valueIsDisplayed:true,
+      nameIsDisplayed:true,
+      type:"date_%Y-%m-%d",
+      displayName:"Date",
+      isCategory: true,
+    }
+  ]
+}
