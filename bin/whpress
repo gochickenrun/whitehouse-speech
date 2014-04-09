@@ -49,7 +49,7 @@ def speeches(filenames_directories, options)
     Find.find(*filenames_directories) do |path|
       if FileTest.file? path and File.basename(path)[0] != '.'
         puts "Extracting #{path}" if options.verbose
-        enum.yield WhitehouseSpeech::Extractor.new path
+        enum.yield WhitehouseSpeech::Extractor.new path, {verbose: options.verbose}
       end
     end
   end

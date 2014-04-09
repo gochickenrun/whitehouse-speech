@@ -15,7 +15,10 @@ module WhitehouseSpeech
     attr_reader :end_time
     attr_reader :text
 
-    def initialize(url_or_filename)
+    def initialize(url_or_filename, options)
+      @options = options
+      @options[:verbose] = false if options[:verbose].nil?
+
       speech_page = Nokogiri::HTML(open url_or_filename)
       @filename = url_or_filename
       @content = speech_page.css '#content'  # Seems to be in a div with the id=content
@@ -31,12 +34,9 @@ module WhitehouseSpeech
 
     def date
       unless @date
-        date_string = @content.css('.information .date')
-          .text.strip
-        begin
-          @date = Date.parse date_string
-        rescue ArgumentError
-          throw "Invalid date for #{@filename}"
+        date_node = @content.css('.information .date')
+        unless date_node.empty?
+          _parse_date_string(date_node.text.strip)
         end
       end
 
@@ -53,12 +53,21 @@ module WhitehouseSpeech
     end
 
 
+    def _parse_date_string(date_string)
+      begin
+        @date = Date.parse date_string
+      rescue ArgumentError
+        throw "Invalid date for #{@filename}: '#{date_string}'"
+      end
+    end
+
     def _parse_speech_text(contents)
       location_index = contents.find_index do |node|
         node.attribute('class') &&
           node.attribute('class').value =~ /rtecenter/
       end
       location_index = 0 unless location_index
+      puts "#{@filename}: No location `.rtecenter' class." if @options[:verbose]
 
       texts = contents[location_index+1..contents.length].map do |node|
         node.text.strip

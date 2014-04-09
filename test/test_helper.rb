@@ -13,31 +13,36 @@ def basic_tests(fixture_name, **results)
     speech = nil
 
     before do
-      speech = WhitehouseSpeech::Extractor.new file_fixture "#{fixture_name}.html"
+      speech = WhitehouseSpeech::Extractor.new file_fixture("#{fixture_name}.html"), {verbose: false}
     end
 
-    it "parses the date" do
-      speech.date.strftime("%-m-%-d-%Y").must_equal results[:date]
-    end
+    describe "parsing" do
 
-    it "returns the headlines" do
-      speech.headlines[0].must_match results[:headline]
-      speech.headlines[1].must_be_empty
-    end
-
-    it "returns the location" do
-      speech.location.must_match(results[:location])
-    end
-
-    it "separates start time when in P tag with speech text" do
-      speech.start_time.strftime("%-l:%M %p %z").must_equal results[:start_time]
-    end
-
-    it "contains the body of the speech" do
-      results[:text_lines].each do |line|
-        speech.text.must_match(line)
+      it "parses the date" do
+        speech.date.strftime("%-m-%-d-%Y").must_equal results[:date]
       end
+
+      it "returns the headlines" do
+        speech.headlines[0].must_match results[:headline]
+        speech.headlines[1].must_be_empty
+      end
+
+      it "returns the location" do
+        speech.location.must_match(results[:location])
+      end
+
+      it "separates start time when in P tag with speech text" do
+        speech.start_time.strftime("%-l:%M %p %z").must_equal results[:start_time]
+      end
+
+      it "contains the body of the speech" do
+        results[:text_lines].each do |line|
+          speech.text.must_match(line)
+        end
+      end
+
     end
+
   end
 
 end
