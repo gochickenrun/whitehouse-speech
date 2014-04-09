@@ -30,7 +30,7 @@ basic_tests('2014_women_soul',
 basic_tests('2012_no_date_marker',
             date: '10-26-2012',
             location: '',
-            start_time: "11:24 AM -0800",
+            start_time: "11:24 AM -0700",
             headline: /Campaign Event/,
             text_lines: [/talk about the future and whether/,
                          /If you detect any passion in my voice/
